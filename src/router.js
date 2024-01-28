@@ -8,11 +8,19 @@ import Tasks from "./views/tasks-page";
 import defaultLayout from "./layouts/side-nav-outer-toolbar";
 import simpleLayout from "./layouts/single-card";
 
+// layout user
+import userLayout from "./layouts/side-nav-outer-toolbar-user";
+
 // car
 import CarListAdmin from "./views/admin/carListView";
 import carListFormAdmin from "./views/admin/formCarListView";
 import CarLoanAdmin from "./views/admin/carLoanView";
 import BorrowingHistoryAdmin from "./views/admin/borrowingHistoryView";
+
+// user
+import CarListUser from "./views/user/carListView";
+import CarLoanUser from "./views/user/carLoanView";
+import FormCarLoanUser from "./views/user/formLoanView";
 
 function loadView(view) {
   return () => import(/* webpackChunkName: "login" */ `./views/${view}.vue`)
@@ -84,6 +92,44 @@ const router = new createRouter({
         layout: defaultLayout
       },
       component: BorrowingHistoryAdmin
+    },
+
+    // // user
+    {
+      path: "/user/home",
+      name: "homeUser",
+      meta: {
+        requiresAuth: true,
+        layout: userLayout
+      },
+      component: Home
+    },
+    {
+      path: "/user/car-loan",
+      name: "carLoanUser",
+      meta: {
+        requiresAuth: true,
+        layout: userLayout
+      },
+      component: CarLoanUser
+    },
+    {
+      path: "/user/car-list",
+      name: "carListUser",
+      meta: {
+        requiresAuth: true,
+        layout: userLayout
+      },
+      component: CarListUser
+    },
+    {
+      path: "/user/car-loan/form",
+      name: "FormCarLoanUser",
+      meta: {
+        requiresAuth: true,
+        layout: userLayout
+      },
+      component: FormCarLoanUser
     },
 
 

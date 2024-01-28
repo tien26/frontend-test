@@ -58,7 +58,7 @@ import DxButton from "devextreme-vue/button";
 import DxToolbar, { DxItem } from "devextreme-vue/toolbar";
 import auth from "../auth";
 import { useRouter, useRoute } from "vue-router";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useStore } from "vuex";
 import notify from "devextreme/ui/notify";
 
@@ -92,6 +92,17 @@ export default {
       },
     ];
 
+    onMounted(() => {
+      getAccount();
+    });
+
+    function getAccount() {
+      const account = store.getters["auth/getUserDetail"];
+      email.value = account.email;
+      // console.log(account, "ini account");
+      return account;
+    }
+
     async function onLogoutClick() {
       await store.dispatch("auth/logout");
       router.push({
@@ -110,6 +121,7 @@ export default {
     return {
       email,
       userMenuItems,
+      getAccount,
     };
   },
   components: {

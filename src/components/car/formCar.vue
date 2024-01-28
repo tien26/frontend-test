@@ -100,8 +100,6 @@ export default {
   },
   emits: ["get-car-list"],
   mounted() {
-    console.log(this.getCarList);
-    console.log(this.getCarListStatus);
     if (this.getCarListStatus == "Edit") {
       this.car = this.getCarList;
     }
@@ -114,7 +112,6 @@ export default {
       this.car.photo = this.file;
       this.car.status = this.car.status ? 1 : 0;
       this.loading = true;
-      console.log(this.car);
       this.$emit("get-car-list", this.car);
     },
     getFile(params) {

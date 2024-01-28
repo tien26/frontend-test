@@ -52,7 +52,8 @@ export default {
                     const decode = JSON.parse(atob(tokenData));
                     commit('setUserId', decode.sub)
                     Cookie.set('token', token)
-                    // dispatch('user', decode.sub)
+
+                    // dispatch('detailUser', decode.sub)
 
                     return result
                 })
@@ -67,58 +68,15 @@ export default {
                 console.log(err.response);
             })
         },
-        async user({ commit, state, dispatch }, params) {
-            return await Api().get(`user/${params}`).then(res => {
-                commit('setUser', res.data.data)
-                dispatch('detailUser', { id: res.data.data.user_detail_id })
-            }).catch(e => {
-                console.log('silahkan login kembali');
-                dispatch('logout');
-            })
-            // const token = Cookie.get("token");
-            // let tokenData = token.split(".")[1];
-            // const decode = JSON.parse(atob(tokenData));
-
-            // const user = await Api().get(`user/${decode.sub}`);
-            // const detail = await Api().get(`employees/${user.data.data.user_detail_id}`);
-            // return {
-            //     user: user.data.data,
-            //     user_detail: detail.data.data
-            // }
-        },
         async detailUser({ commit, dispatch }, params) {
-            return await Api().get(`employees/${params.id}`).then(res => {
-                // console.log(res.data.data, 'detail user')
+            return await Api().get(`get-account?id=${params}`).then(res => {
                 commit('setDetailUser', res.data.data)
-                // return res.data.data
-            })
-            // return Api().get(`employees/${params.id}`).then((res) => {
-            //     return res.data
-            // }).catch((err) => {
-            //     console.log(err.response);
-            // })
-        },
-        getAccounts({ }, params) {
-            return Api().get(`accounts${params}`, {},).then((res) => {
-                return res.data
-            }).catch((err) => {
-                console.log(err.response);
-            })
-        },
-        getEmployees({ }, params) {
-            return Api().get(`employees${params}`, {},).then((res) => {
-                return res.data
-            }).catch((err) => {
-                console.log(err.response);
+                return res
+                // console.log(res.data.data);
             })
         },
         async register({ }, params) {
             return await Api().post(`register`, params).then((res) => {
-                return res.data
-            })
-        },
-        async updateAccounts({ }, params) {
-            return await Api().put(`accounts/${params.id}`, params).then((res) => {
                 return res.data
             })
         },

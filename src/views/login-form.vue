@@ -24,6 +24,10 @@
         }"
       >
         <dx-required-rule message="Password is required" />
+        <DxStringLengthRule
+          :min="8"
+          message="The password must be at least 8 characters"
+        />
         <dx-label :visible="false" />
       </dx-item>
       <!-- <dx-item
@@ -82,6 +86,7 @@ import DxForm, {
   DxLabel,
   DxButtonItem,
   DxButtonOptions,
+  DxStringLengthRule,
 } from "devextreme-vue/form";
 import notify from "devextreme/ui/notify";
 
@@ -98,8 +103,8 @@ export default {
     const store = useStore();
 
     const formData = reactive({
-      email: "",
-      password: "",
+      email: "admin@gmail.com",
+      password: "12345678",
     });
     const loading = ref(false);
 
@@ -110,19 +115,41 @@ export default {
     async function onSubmit() {
       const { email, password } = formData;
       loading.value = true;
-      store.dispatch("auth/login", formData).then((res) => {
-        console.log(res);
-        // if (res.data.data.rl == 1) {
-        //   router.push({ path: "/user/home-user" });
-        // } else if (res.data.data.rl == 2) {
-        //   router.push({ path: "/head/home-head" });
-        // } else if (res.data.data.rl == 3) {
-        //   router.push({ path: "/admin/home-admin" });
-        // } else if (res.data.data.rl == 4) {
-        router.push({ path: "/home" });
-        // }
-        notify("Login Berhasil", "success", 2000);
-      });
+      store
+        .dispatch("auth/login", formData)
+        .then((res) => {
+          const token = res.data.data.access_token;
+          let tokenData = token.split(".")[1];
+          const decode = JSON.parse(atob(tokenData));
+
+          store
+            .dispatch("auth/detailUser", decode.sub)
+            .then((res) => {
+              console.log(res);
+              if (res.data.data.roles == "admin") {
+                router.push({ path: "/home" });
+              } else {
+                router.push({ path: "/user/home" });
+              }
+            })
+            .catch((e) => {
+              console.log("error detail user");
+            });
+          notify("Login Berhasil", "success", 2000);
+        })
+        .catch((e) => {
+          loading.value = false;
+          if (e.response.status == 400) {
+            notify(
+              "Username / Password anda salah! Silahkan isi dengan benar !!",
+              "error",
+              2000
+            );
+          } else {
+            notify("System Error", "error", 2000);
+            console.log(e.response);
+          }
+        });
     }
 
     return {
@@ -141,6 +168,7 @@ export default {
     DxLabel,
     DxButtonItem,
     DxButtonOptions,
+    DxStringLengthRule,
   },
 };
 </script>

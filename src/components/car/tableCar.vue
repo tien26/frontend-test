@@ -49,7 +49,7 @@
       <DxSearchPanel :visible="true" />
 
       <dx-column type="buttons" :width="110" data-field="Action">
-        <!-- <DxButton hint="details" icon="more" @click="details" /> -->
+        <DxButton hint="sewa" icon="cart" @click="cart" v-if="role == 'user'" />
         <DxButton
           text="edit"
           hint="edit"
@@ -62,7 +62,19 @@
       <dx-column data-field="model" caption="Model" />
       <dx-column data-field="no_car" caption="Plat Nomor" />
       <dx-column data-field="price" caption="Harga" />
-      <dx-column data-field="photo" caption="Foto" />
+      <dx-column
+        data-field="photo"
+        caption="Foto"
+        cell-template="cellTemplate"
+      />
+      <template #cellTemplate="{ data }">
+        <div v-if="data.value != null">
+          <img :src="data.value" width="50px" />
+        </div>
+        <div v-else>
+          <p>-</p>
+        </div>
+      </template>
       <dx-column data-field="status" caption="Status" />
     </dx-data-grid>
   </div>
@@ -177,6 +189,15 @@ export default {
     },
   },
   methods: {
+    cart(params) {
+      if (params.row.data.status) {
+        notify("Mobil Sudah Dipinjam,Silahkan Pilih yang lain", "error", 2000);
+        return;
+      }
+      this.$store.dispatch("carList/setCarList", params.row.data);
+      this.$store.dispatch("carLoan/setCarLoanStatus", "Add");
+      router.push(`/user/car-loan/form`);
+    },
     clear() {
       this.readOnlyStatus = true;
       this.status = "";
@@ -211,23 +232,25 @@ export default {
           },
         },
       });
-      e.toolbarOptions.items.unshift({
-        location: "before",
-        widget: "dxButton",
-        options: {
-          icon: "add",
-          text: "Tambah",
-          stylingMode: "outlined",
-          type: "default",
-          onInitialized: function (e) {
-            this.btnAdd = e.component;
+      if (vThis.role == "admin") {
+        e.toolbarOptions.items.unshift({
+          location: "before",
+          widget: "dxButton",
+          options: {
+            icon: "add",
+            text: "Tambah",
+            stylingMode: "outlined",
+            type: "default",
+            onInitialized: function (e) {
+              this.btnAdd = e.component;
+            },
+            onClick: function () {
+              vThis.$store.dispatch("carList/setCarListStatus", "Add");
+              router.push(`/car-list/form`);
+            },
           },
-          onClick: function () {
-            vThis.$store.dispatch("carList/setCarListStatus", "Add");
-            router.push(`/car-list/form`);
-          },
-        },
-      });
+        });
+      }
     },
     async fetch(params = {}) {
       // eslint-disable-next-line no-console

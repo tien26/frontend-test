@@ -169,22 +169,22 @@ export default {
           },
         },
       });
-      e.toolbarOptions.items.unshift({
-        location: "before",
-        widget: "dxButton",
-        options: {
-          icon: "add",
-          text: "Tambah",
-          stylingMode: "outlined",
-          type: "default",
-          onInitialized: function (e) {
-            this.btnAdd = e.component;
-          },
-          onClick: function () {
-            console.log("ini tambah");
-          },
-        },
-      });
+      // e.toolbarOptions.items.unshift({
+      //   location: "before",
+      //   widget: "dxButton",
+      //   options: {
+      //     icon: "add",
+      //     text: "Tambah",
+      //     stylingMode: "outlined",
+      //     type: "default",
+      //     onInitialized: function (e) {
+      //       this.btnAdd = e.component;
+      //     },
+      //     onClick: function () {
+      //       console.log("ini tambah");
+      //     },
+      //   },
+      // });
     },
     async fetch(params = {}) {
       // eslint-disable-next-line no-console

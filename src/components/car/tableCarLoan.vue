@@ -29,9 +29,9 @@
         <DxButton
           text="edit"
           hint="edit"
-          icon="edit"
-          @click="edit"
-          v-if="role == 'user'"
+          icon="check"
+          @click="checkLoan"
+          v-if="role == 'admin'"
         />
       </dx-column>
       <dx-column data-field="no_loan" caption="Code" />
@@ -45,6 +45,38 @@
       <dx-column data-field="no_car" caption="Plat Nomor" />
       <dx-column data-field="price" caption="Harga" />
     </dx-data-grid>
+    <DxPopup
+      :width="300"
+      height="auto"
+      :show-title="true"
+      title="Verifikasi"
+      :drag-enabled="false"
+      :hide-on-outside-click="true"
+      :show-close-button="true"
+      v-model:visible="popUp"
+    >
+      <template #content="{}">
+        <div class="popup-property-details">
+          <b>Pastikan Pengembalian Mobil!</b>
+          <div class="justify-center">
+            <DxButtonx
+              class="customBtn"
+              text="Approve"
+              icon="check"
+              type="success"
+              @click="adminVerif(true)"
+            />
+            <DxButtonx
+              class="customBtn"
+              text="Reject"
+              icon="close"
+              type="danger"
+              @click="adminVerif(false)"
+            />
+          </div>
+        </div>
+      </template>
+    </DxPopup>
   </div>
 </template>
             <script>
@@ -134,6 +166,9 @@ export default {
       status: "",
       btnAdd: null,
       readOnlyStatus: true,
+      popUp: false,
+      loan: {},
+      borrowing: {},
     };
   },
   props: {
@@ -147,12 +182,39 @@ export default {
     },
   },
   methods: {
+    async adminVerif(value) {
+      if (value) {
+        let sumDay =
+          new Date(this.loan.end_date).getTime() -
+          new Date(this.loan.start_date).getTime();
+
+        const total = (sumDay / (1000 * 3600 * 24)) * this.loan.price;
+
+        this.borrowing.loan_id = this.loan.id;
+        this.borrowing.total = total;
+        this.borrowing.status = value;
+
+        this.$store
+          .dispatch("borrowingHistory/postBorrowingHistory", this.borrowing)
+          .then((res) => {
+            this.loan.status = false;
+            this.$store
+              .dispatch("carLoan/editCarLoan", this.loan)
+              .then((res) => {
+                notify("Berhasil", "success", 2000);
+                router.push(`/borrowing-history`);
+              });
+          });
+      }
+      this.popUp = false;
+    },
     changeStatus() {
       this.dataGrid.refresh();
       this.readOnlyStatus = false;
     },
-    async details(params) {
-      console.log(params.data);
+    async checkLoan(params) {
+      this.loan = params.row.data;
+      this.popUp = true;
     },
     edit(params) {
       console.log(params.data);
@@ -174,27 +236,34 @@ export default {
           },
         },
       });
-      e.toolbarOptions.items.unshift({
-        location: "before",
-        widget: "dxButton",
-        options: {
-          icon: "add",
-          text: "Tambah",
-          stylingMode: "outlined",
-          type: "default",
-          onInitialized: function (e) {
-            this.btnAdd = e.component;
-          },
-          onClick: function () {
-            console.log("ini tambah");
-          },
-        },
-      });
+      // if (vThis.role == "user") {
+      //   e.toolbarOptions.items.unshift({
+      //     location: "before",
+      //     widget: "dxButton",
+      //     options: {
+      //       icon: "add",
+      //       text: "Tambah",
+      //       stylingMode: "outlined",
+      //       type: "default",
+      //       onInitialized: function (e) {
+      //         this.btnAdd = e.component;
+      //       },
+      //       onClick: function () {
+      //         console.log("ini tambah");
+      //       },
+      //     },
+      //   });
+      // }
     },
     async fetch(params = {}) {
       // eslint-disable-next-line no-console
       if (Object.keys(params).length === 0) {
         params = {};
+      }
+
+      const user = this.$store.getters["auth/getUserDetail"];
+      if (this.role == "user") {
+        params.user = user.id;
       }
 
       let text = "?";
@@ -223,5 +292,17 @@ export default {
             <style scoped>
 .custom-form {
   margin-top: 20px;
+}
+.popup-property-details {
+  overflow: hidden;
+  position: relative;
+}
+.justify-center {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+.customBtn {
+  margin: 1%;
 }
 </style>
