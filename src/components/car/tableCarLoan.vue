@@ -169,6 +169,7 @@ export default {
       popUp: false,
       loan: {},
       borrowing: {},
+      car: {},
     };
   },
   props: {
@@ -204,6 +205,16 @@ export default {
                 notify("Berhasil", "success", 2000);
                 router.push(`/borrowing-history`);
               });
+
+            this.car.status = 0;
+            this.car._method = "PUT";
+            this.$store
+              .dispatch("carList/editCarList", this.car)
+              .then((res) => {
+                console.log("car updated");
+                // notify("Berhasil", "success", 2000);
+                // router.push(`/borrowing-history`);
+              });
           });
       }
       this.popUp = false;
@@ -214,6 +225,9 @@ export default {
     },
     async checkLoan(params) {
       this.loan = params.row.data;
+      let text = `/${params.row.data.car_id}`;
+      const carList = await this.$store.dispatch("carList/getCarList", text);
+      this.car = carList.data;
       this.popUp = true;
     },
     edit(params) {

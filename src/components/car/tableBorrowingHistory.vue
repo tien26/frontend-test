@@ -192,6 +192,11 @@ export default {
         params = {};
       }
 
+      // const user = this.$store.getters["auth/getUserDetail"];
+      // if (this.role == "user") {
+      //   params.user = user.id;
+      // }
+
       let text = "?";
       const keys = Object.keys(params);
       keys.forEach((i) => {
